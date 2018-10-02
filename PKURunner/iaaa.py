@@ -129,10 +129,10 @@ class IAAAClient(object):
         respJson = self.post("https://iaaa.pku.edu.cn/iaaa/svc/authen/login.do", {
                 "appId": self.AppID,
                 "userName": self.studentID,
-                "randCode": "",                 # 该字段必须要有
+                "randCode": "",              # 该字段必须要有
                 "password": self.password,
-                "smsCode": "SMS",               # 该字段必须要有
-                "otpCode": "",                  # 该字段必须要有
+                "smsCode": "",               # 该字段必须要有
+                "otpCode": "",               # 该字段必须要有
             })
 
         token = respJson.get('token')

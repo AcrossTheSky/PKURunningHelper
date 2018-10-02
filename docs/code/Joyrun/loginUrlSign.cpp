@@ -1,4 +1,12 @@
-// test.cpp
+/*
+    filename: loginUrlSign.cpp
+
+    对 loginUrlSign 反编译代码的模拟
+
+    需要和 md5.cpp 一同编译
+
+    $ g++ loginUrlSign.cpp md5.cpp
+ */
 
 #include <iostream>
 #include <cstring>

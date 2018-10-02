@@ -108,7 +108,7 @@ class JoyrunClient(object):
 
 
     def __init__(self):
-        self.userName = "%s@pku.cn" % config.get("Joyrun", "StudentID")
+        self.userName = "%s@pku.com" % config.get("Joyrun", "StudentID")
         self.password = config.get("Joyrun", "Password")
 
         try:
@@ -389,6 +389,6 @@ if __name__ == '__main__':
     # client.get_friends()
     # client.get_bindings()
     # client.get_records()
-    client.get_best_record()
+    # client.get_best_record()
     # client.get_record(247616368)
 

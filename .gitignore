@@ -1,4 +1,5 @@
 *.out
 __pycache__/
-/config.ini.bac
+
 /PKULayer/
+/config.ini.bac
