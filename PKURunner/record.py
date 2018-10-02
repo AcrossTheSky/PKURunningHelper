@@ -7,17 +7,21 @@
 
 import os
 import time
-import random
 import math
 from functools import partial
 
 try:
-    from ..util import json_load
+    from ..util import (
+            json_load,
+            random,
+        )
 except (ImportError, SystemError, ValueError):
     import sys
     sys.path.append('../')
-    from util import json_load
-
+    from util import (
+            json_load,
+            random,
+        )
 
 Work_Dir = os.path.join(os.path.dirname(__file__)) # 当前工作路径
 Data_Dir = os.path.join(Work_Dir, "data/")

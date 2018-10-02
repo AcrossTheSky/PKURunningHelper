@@ -7,7 +7,7 @@
 
 import os
 import hashlib
-from .module import json
+from .compat import json
 
 
 __all__ = [

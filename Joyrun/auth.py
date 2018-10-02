@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # filename: Joyrun/auth.py
-
+#
+# Joyrun 请求鉴权类
+#
 
 import time
 from requests.auth import AuthBase

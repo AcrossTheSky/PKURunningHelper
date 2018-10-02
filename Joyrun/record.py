@@ -7,7 +7,6 @@
 
 import os
 import time
-import random
 import uuid
 import math
 from functools import partial
@@ -15,14 +14,14 @@ from functools import partial
 try:
     from ..util import (
             json_load,
-            json,
+            json, random,
         )
 except (ImportError, SystemError, ValueError):
     import sys
     sys.path.append('../')
     from util import (
             json_load,
-            json,
+            json, random,
         )
 
 
@@ -188,10 +187,10 @@ class Record(object):
         while True:
             for i in range(points_num_per_loop):
                 idx = math.floor(i / points_num_per_loop * len(points_per_loop))
-                point = points_per_loop[idx] # .copy()
+                point = points_per_loop[idx].copy() # 一定要 copy 否则会同步修改
                 point[0] += self.__point_delta()
                 point[1] += self.__point_delta()
-                yield point.copy() # 一定要 copy 否则会同步修改
+                yield point
 
 
     def __stepcontent_generator(self):

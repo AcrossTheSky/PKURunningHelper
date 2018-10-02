@@ -9,7 +9,6 @@ import os
 import gzip
 import requests
 import time
-import random
 import copy
 from functools import partial
 
@@ -22,7 +21,7 @@ try:
     from ..util import (
             Config,
             json_load,
-            json,
+            json, random,
         )
 except (ImportError, SystemError, ValueError):
     import sys
@@ -30,7 +29,7 @@ except (ImportError, SystemError, ValueError):
     from util import (
             Config,
             json_load,
-            json,
+            json, random,
         )
 
 

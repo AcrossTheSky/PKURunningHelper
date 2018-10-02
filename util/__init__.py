@@ -3,5 +3,5 @@
 # filename: util/__init__.py
 
 from .class_ import *
-from .module import *
 from .func import *
+from .compat import *

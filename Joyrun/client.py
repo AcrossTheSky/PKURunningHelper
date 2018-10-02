@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # filename: Joyrun/client.py
+#
+# Joyrun 客户端类
+#
 
 import os
 import time
