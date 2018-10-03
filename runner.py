@@ -5,9 +5,13 @@
 # 项目运行主程序
 #
 
+__author__ = "Rabbit"
+
+
 from optparse import OptionParser
 from util import (
         Config, Logger,
+        pretty_json,
         json,
     )
 
@@ -27,9 +31,9 @@ else:
     raise ValueError("unsupported running APP -- %s !" % app)
 
 
-parser = OptionParser(usage="PKU running helper ! Check your config first, then enjoy yourself !")
+parser = OptionParser(description="PKU running helper! Check your config first, then enjoy yourself!")
 parser.add_option("-c", "--check", help="show 'config.ini' file", action="store_false")
-parser.add_option("-s", "--start", help="run the runner's client", action="store_false")
+parser.add_option("-s", "--start", help="start uploading job with %s Client" % app, action="store_false")
 
 options, args = parser.parse_args()
 
@@ -39,9 +43,9 @@ if options.check is not None:
     print("-- Using %s Client [%s] --" % (app, __date__))
 
     for section in config.sections():
-        if section in ("Base", app):
+        if section in ["Base", app]:
             print("-- Section [%s]" % section)
-            print(json.dumps(dict(config[section]), indent=4))
+            print(pretty_json(dict(config[section])))
 
 elif options.start is not None:
 

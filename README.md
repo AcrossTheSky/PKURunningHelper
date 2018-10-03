@@ -47,51 +47,32 @@ $ vim config.ini
 ```console
 $ python3 runner.py --help
 
-Usage: PKU running helper ! Check your config first, then enjoy yourself !
+Usage: runner.py [options]
+
+PKU running helper! Check your config first, then enjoy yourself!
 
 Options:
   -h, --help   show this help message and exit
   -c, --check  show 'config.ini' file
-  -s, --start  run the runner's client
+  -s, --start  start uploading job with Joyrun Client
 ```
 
 输入参数 `--check` 检查配置文件的解析情况
 ```console
 $ python3 runner.py --check
 
-Section [Base]
+-- Using PB Client [2018.07.26] --
+-- Section [Base]
 {
-    "app": "Joyrun",
+    "app": "PB",
     "debug": "true"
 }
-
-
-Section [PB]
+-- Section [PB]
 {
     "studentid": "1x000xxxxx",
     "password": "1x000xxxxx",
     "distance": "1.20",
     "pace": "4.50",
-    "stride_frequncy": "160"
-}
-
-
-Section [PKURunner]
-{
-    "studentid": "1x000xxxxx",
-    "password": "xxxxxxxx",
-    "distance": "3.10",
-    "pace": "5.00",
-    "stride_frequncy": "160"
-}
-
-
-Section [Joyrun]
-{
-    "studentid": "1x000xxxxx",
-    "password": "123456",
-    "distance": "1.20",
-    "pace": "5.50",
     "stride_frequncy": "160"
 }
 ```

@@ -41,7 +41,7 @@ def json_load(folder, file, **kw):
             data             json 数据
     """
     jsonPath = os.path.join(folder, file)
-    with open(jsonPath,"r",encoding="utf-8") as fp:
+    with open(jsonPath,"r",encoding="utf-8-sig") as fp:
         data = json.loads(fp.read(), **kw)
     return data
 

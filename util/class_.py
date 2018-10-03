@@ -33,7 +33,7 @@ class Config(object):
 
     def __init__(self):
         self.__config = RawConfigParser(allow_no_value=True)
-        self.__config.read(self.Config_File, encoding="utf-8") # 需要指明 encoding 避免不同系统默认编码不同导致乱码
+        self.__config.read(self.Config_File, encoding="utf-8-sig") # 必须显示指明 encoding
 
     def __getitem__(self, idx):
         """ config[] 操作运算的封装
