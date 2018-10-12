@@ -31,15 +31,21 @@ Data_Dir = os.path.join(Work_Dir, "data/")
 json_load = partial(json_load, Data_Dir)
 
 
-__all__ = ["Record",]
+__Record_Base__ = ["Record","Record54","RecordWMLake",] # 基类
+__Record_54_Instance__ = ["Record54_1",] # 54 跑步记录实例
+__Record_WMLake_Instance__ = ["RecordWMLake_1",] # 未名湖跑步记录实例
+
+__all__ = __Record_Base__ + __Record_54_Instance__ + __Record_WMLake_Instance__
+
 
 
 class Record(object):
-    """ 54 跑步记录类
+    """ 跑步记录 基类
 
         Attributes:
             class:
-                A_Loop_GPS_JSON    str      54 一圈的 GPS 数据
+                A_Loop_GPS_JSON    str      一套 GPS 数据
+                A_Loop_Distance    float    一套 GPS 数据对应的距离/km
                 Altitude_Max       float    最高海拔
                 Altitude_Min       float    最低海拔
             instance:
@@ -62,11 +68,11 @@ class Record(object):
                 pace               float    预设跑步速度/(min/km)
                 stride_frequncy    int      预设步频/(step/min)
     """
-    A_Loop_GPS_JSON = "400m.250p.54.joyrun.json"
+    A_Loop_GPS_JSON = ""
+    A_Loop_Distance = 0.00
 
-    Altitude_Max = 43.80
-    Altitude_Min = 42.20
-
+    Altitude_Max = 0.00
+    Altitude_Min = 0.00
 
     def __init__(self, distance, pace, stride_frequncy):
         """ 由距离、速度、步频来生成一次跑步记录
@@ -76,6 +82,9 @@ class Record(object):
                 pace               float   跑步速度/(min/km)
                 stride_frequncy    int     步频/(step/min)
         """
+        if self.__class__.__name__ in __Record_Base__: # 基类不可实例化
+            raise NotImplementedError
+
         self.altitude = []
         self.dateline = 0
         self.starttime = 0
@@ -141,7 +150,7 @@ class Record(object):
 
             由步数生成时间
         """
-        step_count = random.randint(8, 13) # 一次 8 - 13 步
+        step_count = random.randint(9, 12) # 一次 9 - 12 步
         step_time = step_count / self.stride_frequncy * 60
         step_time *= (1.0 + (random.random() - 0.5) * 2 * 0.05) # 引入 5% 的速率浮动
         return [step_count, round(step_time, 2)] # 时间取 2 位小数
@@ -152,7 +161,7 @@ class Record(object):
             参考： 如果配速 5.50 min/km ，则 5s 跑 15.2 m ，则上下浮动 2m 相当于 上下浮动 13.2 %
         """
         meter_increment = 1000 / self.pace / 60 * self.sampleinterval
-        meter_increment *= (1.0 + (random.random() - 0.5) * 2 * 0.15) # 上下浮动 15%
+        meter_increment *= (1.0 + (random.random() - 0.5) * 2 * 0.07) # 上下浮动 7%
         return int(meter_increment)
 
     def __node_second_delta(self):
@@ -183,7 +192,7 @@ class Record(object):
             无限循环跑圈，并对每个点都引入一个偏差量
         """
         points_per_loop = json_load(self.A_Loop_GPS_JSON)
-        points_num_per_loop = int(self.pace * 0.4 * 60 / self.sampleinterval)
+        points_num_per_loop = int(self.pace * self.A_Loop_Distance * 60 / self.sampleinterval)
         while True:
             for i in range(points_num_per_loop):
                 idx = math.floor(i / points_num_per_loop * len(points_per_loop))
@@ -300,41 +309,79 @@ class Record(object):
         self.timeDistance = json_dumps(self.timeDistance)
 
 
-"""
-    关于 GPS 数据点的生成：
-
-    由于同样使用高德地图，此处就通过对 PKU Runner 的 GPS 数据加以校正来构造相应的 GPS 数据
-
-
-    # Joyrun 的 GPS 数据
-
-    In [70]: max(y), min(y), max(y) - min(y)
-    Out[70]: (116.307666, 116.306616, 0.0010499999999922238)
-
-    In [71]: max(x), min(x), max(x) - min(x)
-    Out[71]: (39.987031, 39.985542, 0.0014889999999994075)
+class Record54(Record):
+    """ 54 跑步记录 基类
+    """
+    pass
 
 
-    # PKU Runner 的数据
-
-    In [84]: max(y), min(y), max(y) - min(y)
-    Out[84]: (116.3137427679677, 116.31274740399665, 0.0009953639710431617)
-
-    In [85]: max(x), min(x), max(x) - min(x)
-    Out[85]: (39.98830637765801, 39.98683984383498, 0.0014665338230344105)
+class RecordWMLake(Record):
+    """ 未名湖跑步记录 基类
+    """
+    pass
 
 
-    # 以最大最小值响应偏差的平均值作为总体偏差
+class Record54_1(Record54):
+    """ 54 跑步记录 No.1
 
-    In [88]: 116.307666 - 116.3137427679677, 116.306616 - 116.31274740399665
-    Out[88]: (-0.006076767967698515, -0.0061314039966475775)
+        GPS 数据点有 PKU Runner 数据校正得来
+        坐标手动校正过，轨迹较为规则
+    """
 
-    In [89]: ((-0.006076767967698515) + (-0.0061314039966475775)) / 2
-    Out[89]: -0.006104085982173046
+    A_Loop_GPS_JSON = "54.1.400m.250p.joyrun.json"
+    A_Loop_Distance = 0.4
+    Altitude_Max = 43.80
+    Altitude_Min = 42.20
 
-    In [90]: 39.987031 - 39.98830637765801, 39.985542 - 39.98683984383498
-    Out[90]: (-0.001275377658011223, -0.00129784383497622)
+    """
+        关于 GPS 数据点的生成：
 
-    In [91]: ((-0.001275377658011223) + (-0.00129784383497622)) / 2
-    Out[91]: -0.0012866107464937215
-"""
+        由于同样使用高德地图，此处就通过对 PKU Runner 的 GPS 数据加以校正来构造相应的 GPS 数据
+
+
+        # Joyrun 的 GPS 数据
+
+        In [70]: max(y), min(y), max(y) - min(y)
+        Out[70]: (116.307666, 116.306616, 0.0010499999999922238)
+
+        In [71]: max(x), min(x), max(x) - min(x)
+        Out[71]: (39.987031, 39.985542, 0.0014889999999994075)
+
+
+        # PKU Runner 的数据
+
+        In [84]: max(y), min(y), max(y) - min(y)
+        Out[84]: (116.3137427679677, 116.31274740399665, 0.0009953639710431617)
+
+        In [85]: max(x), min(x), max(x) - min(x)
+        Out[85]: (39.98830637765801, 39.98683984383498, 0.0014665338230344105)
+
+
+        # 以最大最小值响应偏差的平均值作为总体偏差
+
+        In [88]: 116.307666 - 116.3137427679677, 116.306616 - 116.31274740399665
+        Out[88]: (-0.006076767967698515, -0.0061314039966475775)
+
+        In [89]: ((-0.006076767967698515) + (-0.0061314039966475775)) / 2
+        Out[89]: -0.006104085982173046
+
+        In [90]: 39.987031 - 39.98830637765801, 39.985542 - 39.98683984383498
+        Out[90]: (-0.001275377658011223, -0.00129784383497622)
+
+        In [91]: ((-0.001275377658011223) + (-0.00129784383497622)) / 2
+        Out[91]: -0.0012866107464937215
+    """
+
+
+class RecordWMLake_1(RecordWMLake):
+    """ 未名湖跑步记录 No.1
+
+        基于三圈走路数据，未经过校正，轨迹较为自然
+        fid: 250473735
+    """
+
+    A_Loop_GPS_JSON = "wm.1.2900m.383p.joyrun.json"
+    A_Loop_Distance = 2.92
+
+    Altitude_Max = 41.00
+    Altitude_Min = 38.40

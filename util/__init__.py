@@ -5,3 +5,4 @@
 from .class_ import *
 from .func import *
 from .compat import *
+from .error import *

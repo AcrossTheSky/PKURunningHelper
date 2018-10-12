@@ -12,16 +12,16 @@ import requests
 from urllib.parse import quote
 
 try:
+    from . import record
     from .auth import JoyrunAuth
-    from .record import Record
     from .error import (
             JoyrunRequestStatusError,
             JoyrunRetStateError,
             JoyrunSidInvalidError,
         )
 except (ImportError, SystemError, ValueError):
+    import record
     from auth import JoyrunAuth
-    from record import Record
     from error import (
             JoyrunRequestStatusError,
             JoyrunRetStateError,
@@ -32,7 +32,8 @@ try:
     from ..util import (
             Config, Logger,
             pretty_json, json_load, json_dump, MD5,
-            json, JSONDecodeError,
+            json, JSONDecodeError, random,
+            RecordTypeError, RecordNumberError,
         )
 except (ImportError, SystemError, ValueError):
     import sys
@@ -40,7 +41,8 @@ except (ImportError, SystemError, ValueError):
     from util import (
             Config, Logger,
             pretty_json, json_load, json_dump, MD5,
-            json, JSONDecodeError,
+            json, JSONDecodeError, random,
+            RecordTypeError, RecordNumberError,
         )
 
 
@@ -57,8 +59,8 @@ __all__ = ["JoyrunClient",]
 
 
 def sid_invalid_retry(retry=1):
-    """ 鉴权失败，一般是因为在手机上登录，导致上次登录的 token 失效。
-        该函数用于返回一个函数修饰器，被修饰的 API 函数如果发生鉴权错误，
+    """ 会话 ID 失效，一般是因为在手机上登录，导致上次登录的 sid 失效。
+        该函数用于返回一个函数修饰器，被修饰的 API 函数如果抛出 sid 失效错误，
         则重新登录后重新调用 API 函数，最高 retry 次
 
         Args:
@@ -111,7 +113,10 @@ class JoyrunClient(object):
 
 
     def __init__(self):
-        self.userName = "%s@pku.com" % config.get("Joyrun", "StudentID")
+        self.userName = "{studentId}{suffix}".format(
+                studentId = config.get("Joyrun", "StudentID"),
+                suffix = config.get("Joyrun", "suffix")
+            )
         self.password = config.get("Joyrun", "Password")
 
         try:
@@ -119,8 +124,12 @@ class JoyrunClient(object):
         except (FileNotFoundError, JSONDecodeError):
             cache = {}
 
-        self.uid = cache.get("uid", 0)
-        self.sid = cache.get("sid", '')
+        if cache.get("userName") == self.userName:
+            self.uid = cache.get("uid", 0)
+            self.sid = cache.get("sid", '')
+        else: # userName 不匹配，则不使用缓存信息
+            self.uid = 0
+            self.sid = ''
 
         self.session = requests.Session()
 
@@ -160,7 +169,6 @@ class JoyrunClient(object):
             Args:
                 method            str    请求 method
                 url               str    请求 url/path
-                verify_success    bool   是否校验 success 字段 （默认 true），对于无 success 返回值的请求不需要校验
                 **kwargs                 传给 requests.request 函数
             Returns:
                 respJson      jsonData   json 数据
@@ -190,7 +198,7 @@ class JoyrunClient(object):
 
         respJson = resp.json()
         if respJson.get("ret") != "0":
-            if respJson.get("ret") == "401":
+            if respJson.get("ret") == "401": # sid 失效
                 raise JoyrunSidInvalidError("sid invalid")
             else:
                 self.logger.error("response.json = %s" % pretty_json(respJson))
@@ -257,7 +265,11 @@ class JoyrunClient(object):
         self.sid = respJson['data']['sid']
         self.uid = int(respJson['data']['user']['uid'])
 
-        json_dump(self.Cache_LoginInfo, {"sid": self.sid, "uid": self.uid}) # 缓存新的登录信息
+        json_dump(self.Cache_LoginInfo, { # 缓存新的登录信息
+                "userName": self.userName,
+                "sid": self.sid,
+                "uid": self.uid
+            })
         self.__update_loginInfo()
 
     def logout(self):
@@ -373,13 +385,33 @@ class JoyrunClient(object):
         distance = config.getfloat("Joyrun", "distance") # 总距离 km
         pace = config.getfloat("Joyrun", "pace") # 速度 min/km
         stride_frequncy = config.getint("Joyrun", "stride_frequncy") # 步频 step/min
+        record_type = config.get("Joyrun", "record_type") # 跑步记录类型
+        record_number = config.getint("Joyrun", "record_number") # 跑步记录编号
 
-        record = Record(distance, pace, stride_frequncy)
-        self.upload_record(record)
+        if record_type == "54":
+            record_instances = record.__Record_54_Instance__
+        elif record_type == "wmlake":
+            record_instances = record.__Record_WMLake_Instance__
+        elif record_type == "random":
+            record_instances = getattr(record, random.choice(["__Record_54_Instance__","__Record_WMLake_Instance__"]))
+        else:
+            raise RecordTypeError("unsupport record type '%s' ! valid type = ['54','wmlake','random']" % record_type)
+
+        if record_number == 0:
+            Record = getattr(record, random.choice(record_instances))
+        elif record_number < 0 or record_number > len(record_instances):
+            raise RecordNumberError("invalid record number '%s' ! valid range = [0,%s]" % (record_number, len(record_instances) ))
+        else:
+            Record = getattr(record, record_instances[record_number-1])
+
+        _record = Record(distance, pace, stride_frequncy)
+        self.upload_record(_record)
+
 
 
 if __name__ == '__main__':
     client = JoyrunClient()
+    # client.run()
 
     # client.get_timestamp()
     # client.get_dataMessages()
@@ -393,5 +425,5 @@ if __name__ == '__main__':
     # client.get_bindings()
     # client.get_records()
     # client.get_best_record()
-    # client.get_record(247616368)
+    # client.get_record(249654660)
 

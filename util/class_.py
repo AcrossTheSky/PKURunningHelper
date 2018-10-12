@@ -6,7 +6,6 @@
 #
 
 import os
-import sys
 from configparser import RawConfigParser
 import logging
 
@@ -104,32 +103,14 @@ class Logger(object):
         self.logger = logging.getLogger(name or self.Default_Name)
         self.level = logging.DEBUG if self.config.getboolean("Base", "debug") else logging.INFO
         self.logger.setLevel(self.level)
-        self.add_handler(self.console_headler)
-
-    @property
-    def format(self):
-        fmt = ("[%(levelname)s] %(name)s, %(asctime)s, %(message)s", "%Y-%m-%d %H:%M:%S")
-        return logging.Formatter(*fmt)
+        self.logger.addHandler(self.console_headler)
 
     @property
     def console_headler(self):
-        console_headler = logging.StreamHandler(sys.stdout)
+        console_headler = logging.StreamHandler()
         console_headler.setLevel(self.level)
-        console_headler.setFormatter(self.format)
+        console_headler.setFormatter(logging.Formatter("[%(levelname)s] %(name)s, %(asctime)s, %(message)s", "%Y-%m-%d %H:%M:%S"))
         return console_headler
-
-    def add_handler(self, handler):
-        """ logging.addHander 函数的封装，非重复地添加 handler
-
-            Args:
-                handler    logging.Handler    logging 的 Handler 对象
-            Returns:
-                None
-        """
-        for hd in self.logger.handlers:
-            if hd.__class__.__name__ == handler.__class__.__name__:
-                return # 不重复添加
-        self.logger.addHandler(handler)
 
     """
         以下是对 logging 的五种 level 输出函数的封装

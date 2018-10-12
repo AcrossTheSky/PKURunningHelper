@@ -1,22 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# filename: runner.py
+# filename: main.py
 #
 # 项目运行主程序
 #
-
-__author__ = "Rabbit"
-
 
 from optparse import OptionParser
 from util import (
         Config, Logger,
         pretty_json,
         json,
+        APPTypeError,
     )
 
 config = Config()
-logger = Logger("runner")
+logger = Logger("main")
 
 
 app = config.get('Base', 'APP')
@@ -28,7 +26,7 @@ elif app == "PKURunner":
 elif app == "Joyrun":
     from Joyrun import JoyrunClient as Client, __date__
 else:
-    raise ValueError("unsupported running APP -- %s !" % app)
+    raise APPTypeError("unsupported running APP -- %s !" % app)
 
 
 parser = OptionParser(description="PKU running helper! Check your config first, then enjoy yourself!")
@@ -40,11 +38,11 @@ options, args = parser.parse_args()
 
 if options.check is not None:
 
-    print("-- Using %s Client [%s] --" % (app, __date__))
+    print("# -- Using %s Client [%s] -- #" % (app, __date__))
 
     for section in config.sections():
         if section in ["Base", app]:
-            print("-- Section [%s]" % section)
+            print("# -- Section [%s] -- #" % section)
             print(pretty_json(dict(config[section])))
 
 elif options.start is not None:

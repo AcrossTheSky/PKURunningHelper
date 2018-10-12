@@ -43,11 +43,11 @@ $ cd PKURunningHelper/
 $ vim config.ini
 ```
 
-运行 `runner.py` 查看命令行界面，输入参数 `--help` 查看用法
+运行 `main.py` 查看命令行界面，输入参数 `--help` 查看用法
 ```console
-$ python3 runner.py --help
+$ python3 main.py --help
 
-Usage: runner.py [options]
+Usage: main.py [options]
 
 PKU running helper! Check your config first, then enjoy yourself!
 
@@ -59,29 +59,32 @@ Options:
 
 输入参数 `--check` 检查配置文件的解析情况
 ```console
-$ python3 runner.py --check
+$ python3 main.py --check
 
--- Using PB Client [2018.07.26] --
--- Section [Base]
+# -- Using Joyrun Client [2018.10.01] -- #
+# -- Section [Base] -- #
 {
-    "app": "PB",
+    "app": "Joyrun",
     "debug": "true"
 }
--- Section [PB]
+# -- Section [Joyrun] -- #
 {
     "studentid": "1x000xxxxx",
-    "password": "1x000xxxxx",
-    "distance": "1.20",
-    "pace": "4.50",
-    "stride_frequncy": "160"
+    "password": "123456",
+    "suffix": "@pku.com",
+    "record_type": "wmlake",
+    "record_number": "1",
+    "distance": "3.90",
+    "pace": "5.50",
+    "stride_frequncy": "170"
 }
 ```
 
 确保配置文件书写，然后输入 `--start`，即可完成一次上传。默认为 `debug` 模式，因此还会输出每次请求返回的 json 数据包
 ```console
-$ python3 runner.py --start
+$ python3 main.py --start
 
-[INFO] runner, 2018-09-28 18:08:55, upload record success !
+[INFO] main, 2018-09-28 18:08:55, upload record success !
 ```
 
 
@@ -94,7 +97,8 @@ PKURunningHelper/
 │   ├── auth.py                   // 请求鉴权类
 │   ├── client.py                 // Joyrun 客户端程序包
 │   ├── data                  // 跑步记录数据
-│   │   └── 400m.250p.54.joyrun.json       // 由 PKURunner 的跑步数据经过校正得到
+│   │   ├── 54.1.400m.250p.joyrun.json     // 54跑步记录 1
+│   │   └── wm.1.2900m.383p.joyrun.json    // 未名湖跑步记录 1
 │   ├── error.py                  // 错误类定义
 │   └── record.py                 // 跑步记录类
 ├── LICENSE
@@ -116,6 +120,7 @@ PKURunningHelper/
 ├── cache                     // 缓存文件夹
 │   ├── Joyrun_LoginInfo.json         // Joyrun 的登录状态缓存
 │   └── PKURunner_AccessToken.json    // PKURunner 的 IAAA 认证所得 token 缓存
+├── config.ini                    // 项目配置文件
 ├── docs                      // 一些文档，记录了自己的破解思路
 │   ├── Joyrun.cracked.md         // Joyrun 破解文档
 │   ├── PB.cracked.md             // PB 破解文档
@@ -140,7 +145,7 @@ PKURunningHelper/
 │   │   └── PKURunner.Charles.png
 │   └── web                   // 参考网页
 │       └── 【悦跑圈】app签名算法逆向 - sumousguo的专栏 - CSDN博客.pdf
-├── config.ini                    // 项目配置文件
+├── main.py                       // 主程序
 ├── packets                   // Fiddler 抓包结果和一些 API 接口的返回数据包
 │   ├── Joyrun
 │   │   ├── code.401.json
@@ -151,8 +156,8 @@ PKURunningHelper/
 │   │   ├── po.aspx.247294144.saz
 │   │   ├── po.aspx.247616368.saz
 │   │   ├── ......
-│   │   ├── record.247616368.json
-│   │   └── record.247616368.parse.json
+│   │   ├── record.250473735.json
+│   │   └── record.250473735.parse.json
 │   ├── PB
 │   │   ├── 11km.locus.json
 │   │   ├── 309.gz
@@ -164,12 +169,12 @@ PKURunningHelper/
 │       ├── record.7.json
 │       └── upload.json
 ├── requirements.txt
-├── runner.py                     // 项目主程序
 └── util                      // 通用程序包
     ├── __init__.py
     ├── class_.py                 // 通用类
-    ├── func.py                   // 通用函数库
-    └── module.py                 // 通用模板类，统一 import 导入结果
+    ├── compat.py                 // 兼容库
+    ├── error.py                  // 通用错误类
+    └── func.py                   // 通用函数库
 ```
 
 
